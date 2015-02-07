@@ -5,24 +5,25 @@ function initialize() {
 	};
 	var map = new google.maps.Map(document.getElementById('map'),mapOptions);
 	var bounds = new google.maps.LatLngBounds();
+	var plotLocations = function(result) {
+		var locations = [];
+		_.each(result.locations, function(location){
+			var marker = new google.maps.Marker({
+				position: new google.maps.LatLng(location.latitude, location.longitude),
+				map: map,
+				title: location.provider
+			});
+			bounds.extend(marker.position);
+		});
+		map.fitBounds(bounds);
+	};
 	$.ajax({
 		url: 'get_gps',
 		data: {
 			numberOfPoints: 10000
 		},
 		dataType: 'json',
-		success: function(result) {
-			var locations = [];
-			_.each(result.locations, function(location){
-				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(location.latitude, location.longitude),
-					map: map,
-					title: location.provider
-				});
-				bounds.extend(marker.position);
-			});
-			map.fitBounds(bounds);
-		}
+		success: plotLocations,
 	});
 }
 
